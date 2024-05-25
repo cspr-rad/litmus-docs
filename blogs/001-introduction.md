@@ -4,11 +4,11 @@
 
 ## Introduction
 
-What is truth and what is a lie ?  For systems predicated upon cryptography, e.g. distributed ledgers, the mechanics of answering the question relies upon verification.  The cyber-security maxim "trust but verify" underlines the fact that system verification is as important as system execution.  Only by the former can the veracity of the latter be established. 
+What is truth and what is a lie?  For systems predicated upon cryptography, e.g. distributed ledgers, the mechanics of answering the question relies upon verification.  The cyber-security maxim "trust but verify" underlines the fact that system verification is as important as system execution.  Only by the former can the veracity of the latter be established. 
 
 Therefore it follows that all systems claiming to be cryptographically secure must provide a clear set of verification instructions to be executed whenever the system transitions from one state to another, e.g. whenever a block is produced.  Verification is thus seen as a dynamic process shadowing the evolution of system state in realtime.
 
-Verification, like any dynamic process, comes with a cost.  Who is incentivised to pay the cost ?  Within a blockchain setting, validator nodes typically pay the cost and are subsequently reimbursed by the protocol's reward scheme.  Other system actors, especially the weakly incentivised, tend to simply trust the integrity of validators to foot the verification bill.
+Verification, like any dynamic process, comes with a cost.  Who is incentivised to pay the cost?  Within a blockchain setting, validator nodes typically pay the cost and are subsequently reimbursed by the protocol's reward scheme.  Other system actors, especially the weakly incentivised, tend to simply trust the integrity of validators to foot the verification bill.
 
 Simply trusting a validator is problematic when the validator turns byzantine.  Whilst byzantine nodes typcially need to collude in order to compromise a blockchain protocol, in isolation a node can trivially spoof software agents requesting access to it's on-chain data.  Such spoofing can pollute the wider eco-system of upstream middleware services.  
 
@@ -80,4 +80,4 @@ Post Condor the Casper platform will be extended so as to optimise ZKP verificat
 
 The state of a system ought to be independently verifiable.  When a system is being secured via cryptography, one must verify all cryptographic proofs emitted by that system.  In this introductory article we detailed the set of cryptographic proof types currently emitted by the Casper platform, we also touched upon future proof types.
 
-However simply verifying cryptographic proofs is insufficient because no proof is emitted in a business logic vacumm.  Therefore the next stage of verification involves verifying correct application of business logic.  For example, were block finality signatures correctly computed ?  The next article in this series will specify sets of business rules pertinent to verifying the state of a Casper network.
+However simply verifying cryptographic proofs is insufficient because no proof is emitted in a business logic vacumm.  Therefore the next stage of verification involves verifying correct application of business logic.  For example, were block finality signatures correctly computed?  The next article in this series will specify sets of business rules pertinent to verifying the state of a Casper network.
