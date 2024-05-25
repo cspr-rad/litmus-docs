@@ -62,11 +62,9 @@ Whenever the blockchain processes a new transaction, the relevant trie stores ar
 
 ### Zero Knowledge
 
-Zero-Knowledge proofs (ZKPs) allow one party (the prover) to prove to another party (the verifier) that they know a value without revealing the value itself.  In the context of blockchain, ZKPs can be used to verify transactions and states without exposing the underlying data.  This capability leads to layer 2 scaling solutions that operate off-chain but periodically submit proofs to the main chain, ensuring security and consensus while reducing on-chain transactions.  
+Zero-Knowledge proofs (ZKPs) allow one party (the prover) to prove to another party (the verifier) that they know a value without revealing the value itself.  In the context of blockchain ZKPs can be used to verify transactions and states without exposing the underlying data.  This property opens up the possibilty of building layer 2 scaling solutions that operate off-chain and periodically submit proofs to the layer one.
 
-
-
-may be emitted by a wide array of orthogonal systems, so-called layer two scaling solutions are of particular relevance to a platform such as Casper.  A zk-rollup is a form of layer two scaling mechanism that works as follows:
+A ZK rollup is such a solution that works as follows:
 
 1. Multiple transactions are bundled into a single batch for off-chain execution.
 
@@ -76,9 +74,7 @@ may be emitted by a wide array of orthogonal systems, so-called layer two scalin
 
 4. The layer one verifies the the proof quickly and efficiently.
 
-This process reduces the amount of data that needs to be processed and stored on the main chain, significantly improving throughput and scalability.
-
-The Casper platform will need to evolve so as to host side support for smart contracts that need to verify zero-knowledge proofs (ZKPs).  Host side support is required due to the CPU overhead of verifiying such proofs within a WASM execution context.
+Post Condor the Casper platform will be extended so as to optimise ZKP verification, this will require adding host side support due to the CPU overhead of verifiying such proofs within a WASM execution context.  On-chain ZKP verification failures will typically indicate that the L2 has been compromised.  
 
 ## Summary
 
