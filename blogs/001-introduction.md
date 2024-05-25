@@ -4,58 +4,84 @@
 
 ## Introduction
 
-What is truth and what is a lie ?  Whilst the question is irrelevant for systems predicated upon coercion, it is essential for systems predicated upon cryptography, e.g. distributed ledgers.  The cyber-security maxim "trust but verify" underlines the fact that system verification is as important as system execution.  Only by the former can the latter be trusted. 
+What is truth and what is a lie ?  For systems predicated upon cryptography, e.g. distributed ledgers, the mechanics of answering the question relies upon verification.  The cyber-security maxim "trust but verify" underlines the fact that system verification is as important as system execution.  Only by the former can the veracity of the latter be established. 
 
-Therefore all systems claiming to be cryptographically secure must provide a clear set of verification instructions to be executed whenever the system transitions from one state to another, e.g. whenever a block is produced.  Verification is seen as a dynamic process shadowing the evolution of system state in realtime.
+Therefore it follows that all systems claiming to be cryptographically secure must provide a clear set of verification instructions to be executed whenever the system transitions from one state to another, e.g. whenever a block is produced.  Verification is thus seen as a dynamic process shadowing the evolution of system state in realtime.
 
-But who is incentivised to pay the cost of verification ?  Within a blockchain setting, whereas validator nodes pay the cost they are subsequently reimbursed by the protocol's reward scheme.  Other system actors, especially the weakly incentivised, tend to simply trust the integrity of validators to foot the verification bill.
+Verification, like any dynamic process, comes with a cost.  Who is incentivised to pay the cost ?  Within a blockchain setting, validator nodes typically pay the cost and are subsequently reimbursed by the protocol's reward scheme.  Other system actors, especially the weakly incentivised, tend to simply trust the integrity of validators to foot the verification bill.
 
-But what happens if a validator is byzantine (intenionally or unintentionally) ?  Whilst byzantine nodes typcially need to collude in order to compromise the protocol, in isolation a node can trivially spoof software agents requesting access to it's on-chain data.  Such spoofing can pollute the wider eco-system of upstream middleware services.  
+Simply trusting a validator is problematic when the validator turns byzantine.  Whilst byzantine nodes typcially need to collude in order to compromise a blockchain protocol, in isolation a node can trivially spoof software agents requesting access to it's on-chain data.  Such spoofing can pollute the wider eco-system of upstream middleware services.  
 
-Within a mature blockchain ecosystem all entities should be able to trustlessly interact with the blockchain.  It ought be relatively easy for software agents such as a wallet, an exchange's backend, a system test platform, to programmatically intereact with verified data and receive realtime alerts of verification success & failures.
+Within a mature blockchain ecosystem all entities should be able to trustlessly interact with the blockchain.  It ought be relatively easy for software agents such as a wallet, an exchange's backend, a system test platform, to programmatically intereact with verified data and by extension receive realtime alerts of verification success and/or failure.
 
-As of the time of writing, within the context of the Casper blockchain, it is clear that few if any entities are independently verifying system state.  Project *LITMUS* is an attempt to rectify this situation.  Whereas phase one of the LITMUS project will be predicated upon a fairly traditional verification strategy, phase two will leverage more recent advances in cryptography (e.g. zero-knowledge).
+At the time of writing, within the context of the Casper blockchain, few if any entities are independently verifying system state.  Project *LITMUS* is an attempt to rectify this situation.  The project will roll out in threee phases:
 
-This article is the first in an extended series detailing the set of requirements for LITMUS, the design options, and the various implementations (as they emerge).  It's time for Casper to pass the LITMUS test.
+- Phase One: Traditional verification strategy targetting Casper 1.X.
+
+- Phase Two: Traditional verification strategy targetting Casper 2.X.
+
+- Phase Three: Advanced verification strategy (i.e. zero-knowledge) targetting Casper 2.X.
+
+This article is the first in an extended series detailing the set of requirements for LITMUS, the design options, and the various implementations (as they emerge).  It's time for Casper to pass the LITMUS test, let's begin by reviewing the set of cryptographic proofs being emitted by the Casper platform.
 
 ## Proof Types
 
-All proofs emitted by a cryptographically secured system must be verifiable by an independent observer with reasonable cost in both space & time.  To understand such costs it is useful to review the type of cryptographic proofs to be verified.  
+All proofs emitted by a cryptographically secured system must be verifiable by an independent observer with reasonable cost in both space & time.  To understand such costs it is useful to review the types of cryptographic proofs to be verified.  
 
-### Hash
+### Hashes
 
-A hash is a cryptographic fingerprint over a binary representation of some data, e.g. a block.  A good hashing algorithm exhibits properties such as irreversibilty and collision resistance.  The primary hashing algorithm utilised by the Casper platform is *blake2b*.
+Hash functions are algorithms that take an input (or 'message') and return a fixed-size string of bytes.  The output, typically a hash code, is a "digest" that represents the input data in a seemingly random but deterministic manner.  Hash functions are essential tools in computer science and cryptography, providing a means to efficiently process, store, and verify data. Their ability to generate unique and fixed-size representations of input data while maintaining security properties makes them invaluable for applications such as blockchain.  
 
-To verify a given hash, one must have access to the original data plus the binary codec used to compute the data's binary representation.  Utilizing the codec, one serializes the data to it's binary representation, and then recomputes it's hash by executing the hashing algorithm.  If the recomputed and original hashes are not equal, it is highly likely that the data has been tampered with and a security breach has occurred.  Note that a false negative may be reported if either the codec or hashing algorithm implementation is faulty.
+To verify a given hash, one must have access to the original data plus the binary codec used to compute the data's binary representation.  Utilizing the codec, one serializes the data to it's binary representation, and then recomputes it's hash by executing the hashing algorithm.  If the recomputed and original hashes are not equal, it is highly likely that the data has been tampered with and a security breach has occurred.  
 
-Hash computation and verification is the work horse of any blockchain system.  Not only is all data hashed, e.g. transactions and blocks, but every state transtion results in the computation of an innumerable number of hashes over state deltas.  
+Hash functions are the work horse of any blockchain system:
 
-### Signature
+- Addresses: an on-chain address is derived from hashing over a public key.
+
+- Data: all data (e.g. blocks) is hashed for verification and indexing purposes.
+
+- Links: block N is linked to block N-1 via a hash.  
+
+- State: system state is represented using a cryptographic data structure known as a Merkle trie that extensively utilise hash functions.
+
+### Signatures
 
 A signature is cryptographic evidence of a commitment by some party to the binary representation of some data.  The party initiates the signature procecss by selecting a signature algorithm and generating an assymmetric key pair, i.e. a *secret* signing key and a *public* verification key.  The Casper blockchain account space is associated with assymetric key pairs generated by one of the following ECC algoritums: ed25519 or secp256k1.  To obtain the signature the party passes the signing key and the binary representation of the data to the algorithm.
 
-To verify a given signature requires access to the verification key associated with the signing key used to emit the signature.  The signature algorithm will error if the signature was not generated with the private key associated with the verification key.  If a signature is invalid then it is highly likely that public key is being spoofed and that a security breach has occurred.  Note that a false negative may be reported if the signing algorithm implementation is faulty.
+Signature computation and verification is fundamental to encoding intents and signalling commitments.  A user commits to a transaction by signing over the transaction's hash.  A validator commits to a block by signing over the block's hash.  Signature verification is computationaly intense and forms a large part of a node's CPU footprint.  
 
-Signature computation and verification is fundamental to encoding intents and signalling commitments.  All transactions must be signed by users.  All messages exchanged between nodes are signed.  
+To verify a given signature requires access to the verification key associated with the signing key used to create the signature.  The signature algorithm will error if the signature was not generated with the private key associated with the verification key.  If a signature is invalid then it is highly likely that public key is being spoofed, that a security breach has occurred, and thus that the underlying committment is untrusted.  
 
-### Merkle
+### Merkle-Patricia Tries
 
-System state can be concisely encoded using a cryptographic data structure known as a Merkle Trie.  Within the context of a blockchain, the existing state of the system and the set of transactions to be applied, is passed into an execution engine.  
+A Merkle-Patricia trie is used in blockchain systems to provide compact, efficient, and tamper-proof storage of data, such as the state of the blockchain, account balances, transactions, contract storage, execution logs ... etc.  A Merkle-Patricia trie is deterministic, cryptographically verifiable, enables efficient retrieval of data, makes extensive use of hashing, and supports generation of proofs essential for light clients (e.g. Litmus).
 
-To verify a merkle proof requires ...
+From a structural perspective, a Merkle-Patricia trie is a graph like data structure formed by nodes and paths.  A node can be classified as either a branch, extension or leaf node.  A branch node can have upto 16 children and may contain a value.  An extension compresses edges by collapsing nodes with a single child.  A leaf node contains a key-value pair and represents the end of a path.
 
-If a merkle proof is invalid then it is highly likely that the data under the merkle trie is being spoofed, and thus a security breach has occurred ...
+Whenever the blockchain processes a new transaction, the relevant trie stores are updated. Whenever the blockchain processes a new block the root hashes of the modified tries are stored in the block header - this ensures that the state of all nodes is consistent.  If merkle proof verification fails then it is highly likely that the data under the merkle trie is being spoofed, and thus a security breach has occurred.
 
 ### Zero Knowledge
 
-**TODO**
+Zero-Knowledge proofs (ZKPs) allow one party (the prover) to prove to another party (the verifier) that they know a value without revealing the value itself.  In the context of blockchain, ZKPs can be used to verify transactions and states without exposing the underlying data.  This capability leads to layer 2 scaling solutions that operate off-chain but periodically submit proofs to the main chain, ensuring security and consensus while reducing on-chain transactions.  
+
+
+
+may be emitted by a wide array of orthogonal systems, so-called layer two scaling solutions are of particular relevance to a platform such as Casper.  A zk-rollup is a form of layer two scaling mechanism that works as follows:
+
+1. Multiple transactions are bundled into a single batch for off-chain execution.
+
+2. A form of ZKP known as a SNARK is generated over the transaction batch.  The SNARK prooves the validity of the transactions without revealing the details of the transactions.
+
+3. The proof, along with the layer two state root hash, is submitted to the layer one.
+
+4. The layer one verifies the the proof quickly and efficiently.
+
+This process reduces the amount of data that needs to be processed and stored on the main chain, significantly improving throughput and scalability.
+
+The Casper platform will need to evolve so as to host side support for smart contracts that need to verify zero-knowledge proofs (ZKPs).  Host side support is required due to the CPU overhead of verifiying such proofs within a WASM execution context.
 
 ## Summary
 
-The state of all systems ought to be independently verified.  In cases whereby a system is being secured via cryptography, one pathway to verification is to ensure that all cryptographic proofs emitted by that system are verified in a timely fashion.  In this introductory article we detailed the set of cryptographic proofs currently emitted by the Casper platform, we also touched upon potential future proof types as the platform evolves.
+The state of a system ought to be independently verifiable.  When a system is being secured via cryptography, one must verify all cryptographic proofs emitted by that system.  In this introductory article we detailed the set of cryptographic proof types currently emitted by the Casper platform, we also touched upon future proof types.
 
-Whilst verifying cryptographic proofs is a necessary pre-requisite, in and of itself it is insufficient because no proof is emitted in a business logic vacumm.  Therefore the next stage of verification involves assserting system business rules, e.g. were block finality signatures correctly computed ?  The next article in this series will specify sets of verification business rules pertinent to the Casper platform, another step towards passing the LITMUS test.
-
-## Acknowledgements
-
-This article was written by Mark Greenslade and Matthew Doty.  They received significant inputs and feed from Pavel Burylichev of the Casper R&D team and Ian Mills of Stormeye (Casper Java SDK maintainers).
+However simply verifying cryptographic proofs is insufficient because no proof is emitted in a business logic vacumm.  Therefore the next stage of verification involves verifying correct application of business logic.  For example, were block finality signatures correctly computed ?  The next article in this series will specify sets of business rules pertinent to verifying the state of a Casper network.
